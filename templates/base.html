@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <meta charset="UTF-8">
+    <title>LSPU Timetable System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<div class="d-flex app-shell">
+    <!-- Sidebar -->
+    <div class="sidebar p-3 d-flex flex-column">
+        <div class="text-center mb-4 mt-3">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="LSPU Logo" style="width: 65px; height: auto; margin-bottom: 5px;">
+    <h4 class="text-white fw-bold mb-0"><span class="text-orange">LSPU</span> <span class="text-purple">Sync.</span></h4>
+</div>
+        
+        <div class="user-profile text-center mb-4">
+            <div class="avatar mx-auto mb-2"><i class="bi bi-person-fill"></i></div>
+            <h6 class="text-white mb-0">{{ current_user.username }}</h6>
+            <small class="text-light opacity-75">{{ current_user.role }}</small>
+        </div>
+
+        <ul class="nav flex-column mb-auto">
+            <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('index') }}"><i class="bi bi-calendar-week me-2"></i> My Schedule</a></li>
+            {% if current_user.role == 'Admin' %}
+            <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('schedules') }}"><i class="bi bi-plus-square me-2"></i> Create Schedule</a></li>
+            <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('availability') }}"><i class="bi bi-display me-2"></i> Room Availability</a></li>
+            {% endif %}
+            <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('reports') }}"><i class="bi bi-file-earmark-arrow-down me-2"></i> Export</a></li>
+            
+            {% if current_user.role == 'Admin' %}
+            <li class="nav-item mt-4"><hr class="text-light opacity-25"></li>
+            <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('academic') }}"><i class="bi bi-database me-2"></i> Master Data</a></li>
+            {% endif %}
+            <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('conflicts') }}"><i class="bi bi-exclamation-triangle me-2"></i> Conflicts</a></li>
+        </ul>
+        <hr class="text-light">
+        <form method="POST" action="{{ url_for('logout') }}" class="mb-3"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="nav-link text-white w-100 text-start border-0 bg-transparent"><i class="bi bi-box-arrow-right me-2"></i> Logout</button></form>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content w-100">
+        <!-- Topbar -->
+        <div class="topbar px-4 py-2 d-flex justify-content-between align-items-center">
+            <div class="text-white small">Hello, <strong>{{ current_user.username }}</strong></div>
+            <div class="d-flex align-items-center text-white">
+                <span class="me-2 small text-end">College of Computer Studies<br>Laguna State Polytechnic University</span>
+                <div class="bg-white rounded-circle p-1" style="width: 36px; height: 36px; display:flex; align-items:center; justify-content:center;">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="LSPU Logo" style="width: 100%; height: 100%; object-fit: contain;">
+</div>
+            </div>
+        </div>
+        
+        <div class="container-fluid p-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for cat, msg in messages %}
+                        <div class="alert alert-{{ 'danger' if cat == 'danger' else ('success' if cat == 'success' else ('warning' if cat == 'warning' else 'info')) }} alert-dismissible fade show shadow-sm flash-alert" role="alert" data-auto-dismiss="{{ 'true' if cat in ['success', 'info'] else 'false' }}">
+                            {{ msg }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% else %}
+    <!-- Auth Layout -->
+    {% block auth_content %}{% endblock %}
+{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('.flash-alert[data-auto-dismiss="true"]').forEach((alert) => {
+        window.setTimeout(() => {
+            if (alert.isConnected) {
+                bootstrap.Alert.getOrCreateInstance(alert).close();
+            }
+        }, 5000);
+    });
+</script>
+</body>
+</html>

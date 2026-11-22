@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0" style="color: #310742;">Export & Reports</h2>
+        <p class="text-muted small mb-0 fst-italic">Download and view official schedules</p>
+    </div>
+    <!-- THIS IS THE MISSING BUTTON -->
+    <a href="{{ url_for('download_pdf') }}" class="btn btn-orange">
+        <i class="bi bi-file-earmark-pdf me-2"></i> Download PDF
+    </a>
+</div>
+
+<div class="card custom-card p-3 mb-4">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-3"><label class="form-label small fw-bold text-muted">Term</label><select name="term_id" class="form-select">{% for t in terms %}<option value="{{ t.id }}" {% if t.id == term_id %}selected{% endif %}>{{ t.name }}</option>{% endfor %}</select></div>
+        <div class="col-md-3"><label class="form-label small fw-bold text-muted">View Mode</label><select name="view" class="form-select"><option value="section" {% if view == 'section' %}selected{% endif %}>By Section</option><option value="faculty" {% if view == 'faculty' %}selected{% endif %}>By Faculty</option><option value="room" {% if view == 'room' %}selected{% endif %}>By Room</option></select></div>
+        <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted">Filter</label>
+            <select name="entity_id" class="form-select">
+                {% if view == 'faculty' %}{% for f in faculty %}<option value="{{ f.id }}" {% if f.id == entity_id %}selected{% endif %}>{{ f.name }}</option>{% endfor %}
+                {% elif view == 'room' %}{% for r in rooms %}<option value="{{ r.id }}" {% if r.id == entity_id %}selected{% endif %}>{{ r.code }}</option>{% endfor %}
+                {% else %}{% for s in sections %}<option value="{{ s.id }}" {% if s.id == entity_id %}selected{% endif %}>{{ s.name }}</option>{% endfor %}{% endif %}
+            </select>
+        </div>
+        <div class="col-md-2"><button type="submit" class="btn btn-purple w-100">Generate</button></div>
+    </form>
+</div>
+
+<div class="card custom-card p-4 mb-4">
+    <h4 class="fw-bold mb-4" style="color: #310742;">{{ title }}</h4>
+    <div class="table-responsive">
+        <table class="table table-borderless custom-timetable mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 80px;"></th>
+                    {% for d in days %}<th>{{ d }}</th>{% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for start, end in time_slots %}
+            <tr>
+                <td class="fw-bold text-muted small text-center align-middle">{{ start.strftime('%I:%M %p').lstrip('0') }}</td>
+                {% for d in days %}
+                    {% set cells = grid.get((d, start.strftime('%H:%M')), []) %}
+                    <td class="p-1 position-relative">
+                        {% if cells %}{% for cell in cells %}
+                        <div class="schedule-block">
+                            <div class="fw-bold">{{ cell.course.code }}</div>
+                            <div class="small">{{ cell.section.name }}</div>
+                        </div>
+                        {% endfor %}{% else %}
+                        <div class="empty-slot"></div>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card custom-card p-4 mb-4">
+    <h5 class="fw-bold mb-3" style="color: #310742;">Pending schedules for this term</h5>
+    {% if pending %}<ul class="mb-0">{% for item in pending %}<li>{{ item.course.code }} ? {{ item.section.name }} / {{ item.faculty.name }}</li>{% endfor %}</ul>{% else %}<p class="text-muted mb-0">No pending schedules.</p>{% endif %}
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card custom-card p-4 h-100">
+            <h5 class="fw-bold mb-3" style="color: #310742;">Room Utilization</h5>
+            <table class="table custom-table table-sm">
+                <thead><tr><th>Room</th><th>Classes</th><th>Utilization</th></tr></thead>
+                <tbody>{% for u in room_util %}<tr><td class="fw-bold">{{ u.room.code }}</td><td>{{ u.hours|round(1) }} / {{ u.total_hours }} hours</td><td><div class="progress" style="height:10px;"><div class="progress-bar bg-purple" style="width: {{ u.pct }}%"></div></div></td></tr>{% endfor %}</tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card custom-card p-4 h-100">
+            <h5 class="fw-bold mb-3" style="color: #310742;">Faculty Load</h5>
+            <table class="table custom-table table-sm">
+                <thead><tr><th>Instructor</th><th>Total Classes</th></tr></thead>
+                <tbody>{% for f in faculty_load %}<tr><td class="fw-bold">{{ f.faculty.name }}</td><td><span class="badge bg-purple">{{ f.load }}</span></td></tr>{% endfor %}</tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

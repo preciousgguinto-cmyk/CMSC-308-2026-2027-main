@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="fw-bold mb-4" style="color: #310742;">Master Data Management</h2>
+<ul class="nav nav-pills mb-4 custom-tabs" id="pills-tab" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-courses">Courses</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-faculty">Faculty</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-rooms">Rooms</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-sections">Sections</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-faculty-subjects">Instructor Subjects</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-section-subjects">Section Subjects</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-terms">Terms</button></li>
+</ul>
+
+<div class="tab-content custom-tab-content card custom-card p-4">
+    <div class="tab-pane fade show active" id="tab-courses">
+        <form method="POST" action="{{ url_for('add_course') }}" class="row g-2 mb-4">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-2"><input name="code" class="form-control" placeholder="Code (CS101)" required></div>
+            <div class="col-md-4"><input name="title" class="form-control" placeholder="Title" required></div>
+            <div class="col-md-2"><input name="units" type="number" min="1" value="3" class="form-control"></div>
+            <div class="col-md-2"><select name="room_type" class="form-select"><option value="lecture">Lecture</option><option value="lab">Lab</option></select></div>
+            <div class="col-md-2"><button class="btn btn-purple w-100">Add Course</button></div>
+        </form>
+        <table class="table custom-table">
+            <thead><tr><th>Code</th><th>Title</th><th>Units</th><th>Type</th><th></th></tr></thead>
+            <tbody>{% for c in courses %}<tr><td class="fw-bold">{{ c.code }}</td><td>{{ c.title }}</td><td>{{ c.units }}</td><td>{{ c.room_type }}</td><td class="text-end"><form method="POST" action="{{ url_for('delete_course', id=c.id) }}" onsubmit="return confirm('Delete course?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+
+    <div class="tab-pane fade" id="tab-faculty">
+        <form method="POST" action="{{ url_for('add_faculty') }}" class="row g-2 mb-4">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-5"><input name="name" class="form-control" placeholder="Full name" required></div>
+            <div class="col-md-5"><input name="department" class="form-control" placeholder="Department"></div>
+            <div class="col-md-2"><button class="btn btn-purple w-100">Add Faculty</button></div>
+        </form>
+        <table class="table custom-table">
+            <thead><tr><th>Name</th><th>Department</th><th></th></tr></thead>
+            <tbody>{% for f in faculty %}<tr><td class="fw-bold">{{ f.name }}</td><td>{{ f.department }}</td><td class="text-end"><form method="POST" action="{{ url_for('delete_faculty', id=f.id) }}" onsubmit="return confirm('Delete faculty?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+
+    <div class="tab-pane fade" id="tab-rooms">
+        <form method="POST" action="{{ url_for('add_room') }}" class="row g-2 mb-4">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-3"><input name="code" class="form-control" placeholder="Code (Room 206)" required></div>
+            <div class="col-md-3"><input name="capacity" type="number" min="1" value="30" class="form-control"></div>
+            <div class="col-md-3"><select name="room_type" class="form-select"><option value="lecture">Lecture</option><option value="lab">Lab</option></select></div>
+            <div class="col-md-3"><button class="btn btn-purple w-100">Add Room</button></div>
+        </form>
+        <table class="table custom-table">
+            <thead><tr><th>Code</th><th>Capacity</th><th>Type</th><th></th></tr></thead>
+            <tbody>{% for r in rooms %}<tr><td class="fw-bold">{{ r.code }}</td><td>{{ r.capacity }}</td><td>{{ r.room_type }}</td><td class="text-end"><form method="POST" action="{{ url_for('delete_room', id=r.id) }}" onsubmit="return confirm('Delete room?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+
+    <div class="tab-pane fade" id="tab-sections">
+        <form method="POST" action="{{ url_for('add_section') }}" class="row g-2 mb-4">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-4"><input name="name" class="form-control" placeholder="Name (BSCS 3A)" required></div>
+            <div class="col-md-4"><input name="program" class="form-control" placeholder="Program"></div>
+            <div class="col-md-2"><input name="size" type="number" min="1" value="30" class="form-control"></div>
+            <div class="col-md-2"><button class="btn btn-purple w-100">Add Section</button></div>
+        </form>
+        <table class="table custom-table">
+            <thead><tr><th>Name</th><th>Program</th><th>Size</th><th></th></tr></thead>
+            <tbody>{% for s in sections %}<tr><td class="fw-bold">{{ s.name }}</td><td>{{ s.program }}</td><td>{{ s.size }}</td><td class="text-end"><form method="POST" action="{{ url_for('delete_section', id=s.id) }}" onsubmit="return confirm('Delete section?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+
+    <div class="tab-pane fade" id="tab-faculty-subjects">
+        <p class="text-muted">Choose which subjects each instructor may teach in each term. The auto-generator will select an eligible instructor who has no schedule conflict.</p>
+        <form method="POST" action="{{ url_for('add_faculty_course_assignment') }}" class="row g-2 mb-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-4"><select name="term_id" class="form-select" required><option value="">Select term</option>{% for t in terms %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}</select></div>
+            <div class="col-md-4"><select name="faculty_id" class="form-select" required><option value="">Select instructor</option>{% for f in faculty %}<option value="{{ f.id }}">{{ f.name }}</option>{% endfor %}</select></div>
+            <div class="col-md-3"><select name="course_id" class="form-select" required><option value="">Select subject</option>{% for c in courses %}<option value="{{ c.id }}">{{ c.code }} — {{ c.title }}</option>{% endfor %}</select></div>
+            <div class="col-md-1"><button class="btn btn-purple w-100">Add</button></div>
+        </form>
+        <div class="table-responsive"><table class="table custom-table align-middle">
+            <thead><tr><th>Term</th><th>Instructor</th><th>Subject</th><th></th></tr></thead>
+            <tbody>{% for a in faculty_course_assignments %}<tr><td>{{ a.term.name }}</td><td>{{ a.faculty.name }}</td><td><strong>{{ a.course.code }}</strong> — {{ a.course.title }}</td><td class="text-end"><form method="POST" action="{{ url_for('delete_faculty_course_assignment', id=a.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger">Remove</button></form></td></tr>{% else %}<tr><td colspan="4" class="text-muted">No instructor subject assignments yet.</td></tr>{% endfor %}</tbody>
+        </table></div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-section-subjects">
+        <p class="text-muted">Choose the subjects each section must take in each term. Auto-generation creates one class schedule for every section-subject assignment.</p>
+        <form method="POST" action="{{ url_for('add_section_course_assignment') }}" class="row g-2 mb-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-4"><select name="term_id" class="form-select" required><option value="">Select term</option>{% for t in terms %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}</select></div>
+            <div class="col-md-4"><select name="section_id" class="form-select" required><option value="">Select section</option>{% for s in sections %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select></div>
+            <div class="col-md-3"><select name="course_id" class="form-select" required><option value="">Select subject</option>{% for c in courses %}<option value="{{ c.id }}">{{ c.code }} — {{ c.title }}</option>{% endfor %}</select></div>
+            <div class="col-md-1"><button class="btn btn-purple w-100">Add</button></div>
+        </form>
+        <div class="table-responsive"><table class="table custom-table align-middle">
+            <thead><tr><th>Term</th><th>Section</th><th>Subject</th><th></th></tr></thead>
+            <tbody>{% for a in section_course_assignments %}<tr><td>{{ a.term.name }}</td><td>{{ a.section.name }}</td><td><strong>{{ a.course.code }}</strong> — {{ a.course.title }}</td><td class="text-end"><form method="POST" action="{{ url_for('delete_section_course_assignment', id=a.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger">Remove</button></form></td></tr>{% else %}<tr><td colspan="4" class="text-muted">No section subject assignments yet.</td></tr>{% endfor %}</tbody>
+        </table></div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-terms">
+        <form method="POST" action="{{ url_for('add_term') }}" class="row g-2 mb-4">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-9"><input name="name" class="form-control" placeholder="Term name (e.g. 1st Semester 2026-2027)" required></div>
+            <div class="col-md-3"><button class="btn btn-purple w-100">Add Term</button></div>
+        </form>
+        <table class="table custom-table">
+            <thead><tr><th>Name</th><th></th></tr></thead>
+            <tbody>{% for t in terms %}<tr><td class="fw-bold">{{ t.name }}</td><td class="text-end"><form method="POST" action="{{ url_for('delete_term', id=t.id) }}" onsubmit="return confirm('Delete term?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

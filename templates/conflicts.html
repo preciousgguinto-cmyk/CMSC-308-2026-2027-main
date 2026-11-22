@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="fw-bold mb-4" style="color: #310742;">Live Conflict Detection</h2>
+<div class="mb-4">
+    <span class="badge bg-success fs-6 me-2">{{ total - rows|selectattr('messages')|list|length }} Approved</span>
+    <span class="badge bg-danger fs-6">{{ rows|selectattr('messages')|list|length }} Conflicts</span>
+</div>
+
+<div class="row g-4">
+    {% for row in rows %}
+    <div class="col-lg-6">
+        <div class="card custom-card h-100 border-0 {% if row.messages %}bg-danger-subtle{% endif %}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">{{ row.schedule.course.code }} <span class="text-muted fw-normal">({{ row.schedule.section.name }})</span></h5>
+                    {% if row.messages %}<span class="badge bg-danger">Conflict</span>{% else %}<span class="badge bg-success">OK</span>{% endif %}
+                </div>
+                <div class="row small mb-3">
+                    <div class="col-6"><strong>Faculty:</strong> {{ row.schedule.faculty.name }}</div>
+                    <div class="col-6"><strong>Room:</strong> {{ row.schedule.room.code }}</div>
+                    <div class="col-12 mt-1"><strong>Time:</strong> {{ row.schedule.day }} {{ row.schedule.start_time.strftime('%I:%M %p') }} - {{ row.schedule.end_time.strftime('%I:%M %p') }}</div>
+                </div>
+                {% if row.messages %}
+                <div class="alert alert-danger mb-0 py-2">
+                    <ul class="mb-0 ps-3">{% for m in row.messages %}<li>{{ m }}</li>{% endfor %}</ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

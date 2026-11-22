@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="fw-bold mb-4" style="color: #310742;">Room & Faculty Availability</h2>
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card custom-card p-4">
+            <h5 class="fw-bold mb-3" style="color: #310742;">Add Unavailability</h5>
+            <form method="POST" action="{{ url_for('add_availability') }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Select Entity</label>
+                    <select name="entity" class="form-select" required>
+                        <option value="">— Select faculty or room —</option>
+                        <optgroup label="Faculty">{% for f in faculty %}<option value="faculty:{{ f.id }}">{{ f.name }}</option>{% endfor %}</optgroup>
+                        <optgroup label="Rooms">{% for r in rooms %}<option value="room:{{ r.id }}">{{ r.code }}</option>{% endfor %}</optgroup>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Day</label>
+                    <select name="day" class="form-select" required>{% for d in days %}<option value="{{ d }}">{{ d }}</option>{% endfor %}</select>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-6"><label class="form-label small fw-bold text-muted">Start Time</label><input type="time" name="start_time" class="form-control" required></div>
+                    <div class="col-6"><label class="form-label small fw-bold text-muted">End Time</label><input type="time" name="end_time" class="form-control" required></div>
+                </div>
+                <button class="btn btn-purple w-100">Add Block</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card custom-card p-4 h-100">
+            <h5 class="fw-bold mb-3" style="color: #310742;">Existing Blocks</h5>
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead><tr><th>Entity</th><th>Day</th><th>Time</th><th></th></tr></thead>
+                    <tbody>
+                    {% for a in availabilities %}
+                    <tr>
+                        <td>{% if a.faculty_id %}<span class="badge bg-secondary me-2">Faculty</span> {{ a.faculty.name }}{% elif a.room_id %}<span class="badge bg-warning text-dark me-2">Room</span> {{ a.room.code }}{% endif %}</td>
+                        <td class="fw-bold">{{ a.day }}</td>
+                        <td>{{ a.start_time.strftime('%I:%M %p') }} - {{ a.end_time.strftime('%I:%M %p') }}</td>
+                        <td class="text-end"><form method="POST" action="{{ url_for('delete_availability', id=a.id) }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger">Remove</button></form></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted py-4">No blocks set.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
